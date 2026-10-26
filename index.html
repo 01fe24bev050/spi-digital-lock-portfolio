@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#090914" />
+  <meta name="description" content="Interactive portfolio for a 2-bit SPI-style digital lock using 74HC165, 74HC595, 74HC85 and 74HC32 logic ICs." />
+  <title>LOCK//LINK — SPI Digital Lock</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="noise" aria-hidden="true"></div>
+  <header class="topbar">
+    <a class="brand" href="#home" aria-label="Lock Link home"><span class="brand-mark">L<span>/</span>L</span><span>LOCK<span class="brand-dim">//</span>LINK</span></a>
+    <button class="menu-toggle" id="menuToggle" aria-label="Toggle navigation">☰</button>
+    <nav id="navLinks">
+      <a href="#home" class="active">Home</a><a href="#intro">Introduction</a><a href="#design">Design</a><a href="#simulator">Live Simulator</a><a href="#results">Results</a><a href="#bom">Bill of Materials</a>
+    </nav>
+    <a class="top-cta" href="#simulator">Try the system <span>↗</span></a>
+  </header>
+
+  <main>
+    <section class="hero section-wrap" id="home">
+      <div class="hero-copy">
+        <div class="eyebrow"><span class="pulse-dot"></span> DIGITAL SYSTEMS LAB <span class="eyebrow-line"></span> PROJECT 01</div>
+        <h1>One clock.<br>Two bits.<br><span class="gradient-text">One decision.</span></h1>
+        <p class="hero-lede">A compact SPI-style digital lock that sends a password serially, compares it against a stored value, and returns a clear access status.</p>
+        <div class="hero-actions"><a class="button button-primary" href="#simulator">Launch live simulator <span>↗</span></a><a class="text-link" href="#design">Explore the architecture <span>↓</span></a></div>
+        <div class="hero-stats"><div><strong>02-bit</strong><span>Password width</span></div><div><strong>04</strong><span>Core logic IC types</span></div><div><strong>5V</strong><span>Logic supply target</span></div></div>
+      </div>
+      <div class="hero-visual" aria-label="Illustration of a digital lock data path">
+        <div class="orbit orbit-one"></div><div class="orbit orbit-two"></div><div class="orbit orbit-three"></div>
+        <div class="hero-chip chip-master"><span class="chip-label">MASTER</span><span class="chip-icon">⌘</span><b>74HC165</b><small>Parallel → Serial</small></div>
+        <div class="hero-chip chip-slave"><span class="chip-label">SLAVE</span><span class="chip-icon">▦</span><b>74HC595</b><small>Serial → Parallel</small></div>
+        <div class="hero-lock"><div class="lock-shackle"></div><div class="lock-body"><span>••</span><small>ACCESS</small></div></div>
+        <div class="data-path path-forward"><span class="path-label">MOSI · DATA OUT</span><i></i><i></i><i></i><i></i></div>
+        <div class="data-path path-return"><span class="path-label">MISO · STATUS BACK</span><i></i><i></i><i></i><i></i></div>
+        <div class="hero-caption"><span class="tiny-square"></span> FULL-DUPLEX-STYLE FEEDBACK <span class="caption-right">CLK / LOAD / LATCH</span></div>
+      </div>
+      <div class="scroll-cue"><span></span> SCROLL TO EXPLORE</div>
+    </section>
+
+    <section class="intro section-wrap section-pad" id="intro">
+      <div class="section-kicker">01 / INTRODUCTION</div>
+      <div class="section-heading-row"><h2>Security, built<br>from <span class="gradient-text">logic.</span></h2><p>A password check is simple in concept. This project makes the journey visible: parallel inputs become serial data, the received bits are compared, and a status response travels back to the master.</p></div>
+      <div class="intro-grid">
+        <article class="info-card large-card"><div class="card-number">A / THE PROBLEM</div><div class="card-symbol">≋</div><h3>Too many wires.<br>Too little feedback.</h3><p>Parallel data can require a separate wire for each bit. Our design demonstrates how shift registers move data over a shared clocked serial link and return a comparison result.</p><div class="card-bottom"><span>PROBLEM STATEMENT</span><span>↗</span></div></article>
+        <article class="info-card"><div class="card-number">B / THE METHOD</div><div class="card-symbol">⌁</div><h3>Shift. Compare.<br>Respond.</h3><p>A 74HC165 serializes the entered value. A 74HC595 reconstructs it for comparison. The result is encoded and shifted back.</p><div class="card-bottom"><span>SYSTEM METHOD</span><span>↗</span></div></article>
+        <article class="info-card accent-card"><div class="card-number">C / THE OUTCOME</div><div class="card-symbol">◉</div><h3>One result.<br>Two clear states.</h3><p>Matching values produce an access-approved state; a mismatch produces a denied state, shown by the status indicators.</p><div class="card-bottom"><span>EXPECTED BEHAVIOUR</span><span>↗</span></div></article>
+      </div>
+      <div class="principle-strip"><span class="strip-icon">✳</span><p><b>Design principle</b> — use a shared clock for coordinated shifting, then update the parallel outputs only when the received bits are ready.</p><span class="mono">SERIAL IN / SERIAL OUT</span></div>
+    </section>
+
+    <section class="design-section section-pad" id="design">
+      <div class="section-wrap">
+        <div class="section-kicker">02 / SYSTEM DESIGN</div><div class="section-heading-row"><h2>Follow the<br><span class="gradient-text">signal path.</span></h2><p>Four stages form the core of the digital lock. The status feedback path is part of the design—not just an LED at the end.</p></div>
+        <div class="architecture">
+          <div class="arch-node"><span class="arch-step">01</span><span class="arch-icon">▤</span><h3>Input</h3><b>DIP switches</b><p>Enter a 2-bit password.</p><small>PARALLEL DATA</small></div><div class="arch-connector"><span>2 bits</span><i></i></div>
+          <div class="arch-node"><span class="arch-step">02</span><span class="arch-icon">⇢</span><h3>Serialize</h3><b>74HC165</b><p>Load the inputs, then shift them out.</p><small>PISO</small></div><div class="arch-connector"><span>Serial</span><i></i></div>
+          <div class="arch-node arch-node-featured"><span class="arch-step">03</span><span class="arch-icon">≍</span><h3>Compare</h3><b>74HC85 + 74HC32</b><p>Equality approves; inequality flags mismatch.</p><small>COMPARE / STATUS</small></div><div class="arch-connector"><span>Status</span><i></i></div>
+          <div class="arch-node"><span class="arch-step">04</span><span class="arch-icon">▥</span><h3>Display</h3><b>74HC595 + LEDs</b><p>Receive the returned status and display it.</p><small>SIPO / OUTPUT</small></div>
+        </div>
+        <div class="return-banner"><span class="return-icon">↶</span><div><b>The return path matters</b><p>Comparator status → 74HC165 (slave transmitter) → serial link → 74HC595 (master receiver) → master-side LEDs.</p></div><span class="return-tag">STATUS FEEDBACK</span></div>
+        <div class="component-grid">
+          <article><span class="component-id">U1 / U6</span><h3>74HC165</h3><p>Parallel-In, Serial-Out shift register. Captures parallel status/password bits and shifts them out serially.</p><span class="pill">PISO</span></article>
+          <article><span class="component-id">U2 / U7</span><h3>74HC595</h3><p>Serial-In, Parallel-Out shift register with a separate output latch for stable displayed outputs.</p><span class="pill">SIPO</span></article>
+          <article><span class="component-id">U4</span><h3>74HC85</h3><p>4-bit magnitude comparator. The design uses two bits; unused higher-order inputs are tied to defined logic levels.</p><span class="pill">COMPARATOR</span></article>
+          <article><span class="component-id">U5</span><h3>74HC32</h3><p>OR gate combines A&lt;B and A&gt;B to generate a mismatch signal.</p><span class="pill">LOGIC GATE</span></article>
+        </div>
+        <div class="timing-note"><span>!</span><p><b>Implementation note</b> — the interactive simulator below illustrates the intended 2-bit logic and return-status behaviour. Real hardware timing still depends on correct SH/LD, clock, and ST_CP/LATCH sequencing in Proteus.</p></div>
+      </div>
+    </section>
+
+    <section class="sim-section section-pad" id="simulator">
+      <div class="section-wrap">
+        <div class="section-kicker">03 / LIVE SIMULATOR</div><div class="section-heading-row"><h2>Try the lock.<br><span class="gradient-text">See every bit.</span></h2><p>Set the entered password and stored password, then run a transfer. Watch the data move through the stages and the returned status update.</p></div>
+        <div class="simulator-shell">
+          <div class="sim-topline"><div><span class="live-dot"></span><span class="mono">SYSTEM ONLINE</span></div><span class="mono sim-id">LL-SIM / 2BIT / REV 1.0</span><div class="sim-clock"><span class="clock-bars"><i></i><i></i><i></i></span> CLOCK <b id="clockCount">00</b></div></div>
+          <div class="sim-body">
+            <div class="sim-controls">
+              <div class="sim-group"><div class="sim-group-head"><span class="step-label">01</span><div><h3>Master input</h3><p>Entered password · SW1</p></div><span class="group-value" id="enteredValue">00</span></div><div class="switch-row"><span class="mono">BIT 1</span><button class="bit-switch" data-target="entered" data-bit="1" aria-pressed="false" aria-label="Toggle entered password bit 1"><span></span></button><span class="bit-state" id="enteredBit1">0</span><span class="mono">BIT 0</span><button class="bit-switch" data-target="entered" data-bit="0" aria-pressed="false" aria-label="Toggle entered password bit 0"><span></span></button><span class="bit-state" id="enteredBit0">0</span></div></div>
+              <div class="sim-group"><div class="sim-group-head"><span class="step-label">02</span><div><h3>Stored password</h3><p>Reference value · DSW2</p></div><span class="group-value" id="storedValue">00</span></div><div class="switch-row"><span class="mono">BIT 1</span><button class="bit-switch" data-target="stored" data-bit="1" aria-pressed="false" aria-label="Toggle stored password bit 1"><span></span></button><span class="bit-state" id="storedBit1">0</span><span class="mono">BIT 0</span><button class="bit-switch" data-target="stored" data-bit="0" aria-pressed="false" aria-label="Toggle stored password bit 0"><span></span></button><span class="bit-state" id="storedBit0">0</span></div></div>
+              <div class="sim-actions"><button class="button button-primary run-button" id="runTransfer"><span class="run-icon">▶</span> Execute SPI transfer</button><button class="button button-ghost" id="resetSim">↺ Reset</button></div>
+              <div class="sim-hint"><span>i</span> A transfer sends two password bits, compares the received value, then returns a correct/incorrect status.</div>
+            </div>
+            <div class="sim-visual">
+              <div class="sim-stage-label"><span>TRANSFER PIPELINE</span><span id="phaseText">READY / IDLE</span></div>
+              <div class="pipeline"><div class="pipe-node" id="nodeMaster"><span class="pipe-icon">▤</span><b>MASTER</b><small>74HC165</small><em id="pipeMasterBits">00</em></div><div class="pipe-wire" id="wireForward"><span class="wire-data">MOSI →</span><i></i><i></i></div><div class="pipe-node" id="nodeSlave"><span class="pipe-icon">≍</span><b>SLAVE</b><small>74HC595 + 74HC85</small><em id="pipeSlaveBits">00</em></div></div>
+              <div class="pipeline pipeline-return"><div class="pipe-node" id="nodeStatus"><span class="pipe-icon">↶</span><b>STATUS</b><small>74HC165</small><em id="pipeStatusBits">— —</em></div><div class="pipe-wire" id="wireReturn"><span class="wire-data">← MISO</span><i></i><i></i></div><div class="pipe-node" id="nodeReceiver"><span class="pipe-icon">▥</span><b>MASTER RX</b><small>74HC595</small><em id="pipeReturnBits">— —</em></div></div>
+              <div class="sim-result" id="simResult" aria-live="polite"><div class="result-leds"><div class="result-led"><span class="led-dot led-green" id="greenLed"></span><span>ACCESS GRANTED</span></div><div class="result-led"><span class="led-dot led-red" id="redLed"></span><span>ACCESS DENIED</span></div></div><div class="result-message"><span class="result-icon" id="resultIcon">◌</span><div><b id="resultTitle">Waiting for transfer</b><p id="resultDesc">Choose two values and execute the transfer to see the result.</p></div></div></div>
+            </div>
+          </div>
+          <div class="sim-footer"><span><i class="footer-dot"></i> LOCAL LOGIC SIMULATION</span><span id="transferStatus">No transfer executed yet</span><span>BIT ORDER: MSB → LSB</span></div>
+        </div>
+        <div class="sim-disclaimer">This is a browser-based logic demonstration, not a live connection to Proteus or physical hardware.</div>
+      </div>
+    </section>
+
+    <section class="results-section section-pad" id="results">
+      <div class="section-wrap">
+        <div class="section-kicker">04 / RESULTS & VERIFICATION</div><div class="section-heading-row"><h2>Proof is in<br>the <span class="gradient-text">output.</span></h2><p>Use these test vectors to verify both the comparison logic and the returned status path. The expected outputs below are design expectations to validate in Proteus.</p></div>
+        <div class="results-table-wrap"><table><thead><tr><th>TEST</th><th>ENTERED</th><th>STORED</th><th>COMPARATOR</th><th>EXPECTED STATUS</th></tr></thead><tbody><tr><td><span class="test-id">T01</span></td><td class="binary">00</td><td class="binary">00</td><td><span class="status-equal">A = B</span></td><td><span class="status-pass">● Green ON / Red OFF</span></td></tr><tr><td><span class="test-id">T02</span></td><td class="binary">01</td><td class="binary">01</td><td><span class="status-equal">A = B</span></td><td><span class="status-pass">● Green ON / Red OFF</span></td></tr><tr><td><span class="test-id">T03</span></td><td class="binary">01</td><td class="binary">10</td><td><span class="status-fail">A ≠ B</span></td><td><span class="status-deny">● Green OFF / Red ON</span></td></tr><tr><td><span class="test-id">T04</span></td><td class="binary">11</td><td class="binary">00</td><td><span class="status-fail">A ≠ B</span></td><td><span class="status-deny">● Green OFF / Red ON</span></td></tr></tbody></table></div>
+        <div class="results-cards"><article><span class="metric-icon">✓</span><b>Comparison</b><p>U4 A=B should be HIGH only when both 2-bit values match.</p></article><article><span class="metric-icon">↶</span><b>Return path</b><p>U6 must load the settled status before shifting the two return bits to U7.</p></article><article><span class="metric-icon">◉</span><b>Output latch</b><p>U7's LEDs should update after the required latch edge, not during shifting.</p></article></div>
+        <div class="results-callout"><span class="callout-mark">//</span><div><b>Validation statement</b><p>Record the actual Proteus result for each test vector. Claim “zero bit errors” only after the displayed outputs have been checked against the entered values and the return-status signals.</p></div></div>
+      </div>
+    </section>
+
+    <section class="bom-section section-pad" id="bom">
+      <div class="section-wrap">
+        <div class="section-kicker">05 / BILL OF MATERIALS</div><div class="section-heading-row"><h2>Small parts.<br><span class="gradient-text">Clear purpose.</span></h2><p>The main parts used in the 2-bit digital-lock design. Quantities and exact part variants should be confirmed against the final Proteus schematic and hardware build.</p></div>
+        <div class="bom-list"><div class="bom-row bom-head"><span>REF</span><span>COMPONENT</span><span>ROLE IN THE PROJECT</span><span>QTY*</span></div><div class="bom-row"><span class="mono">U1 / U6</span><b>74HC165</b><span>Parallel-to-serial conversion</span><span>02</span></div><div class="bom-row"><span class="mono">U2 / U7</span><b>74HC595</b><span>Serial-to-parallel conversion + output latch</span><span>02</span></div><div class="bom-row"><span class="mono">U4</span><b>74HC85</b><span>Password magnitude comparison</span><span>01</span></div><div class="bom-row"><span class="mono">U5</span><b>74HC32</b><span>OR logic for mismatch status</span><span>01</span></div><div class="bom-row"><span class="mono">SW1 / DSW2</span><b>2-position DIP switches</b><span>Entered and stored password inputs</span><span>02</span></div><div class="bom-row"><span class="mono">R*</span><b>10 kΩ / 330 Ω resistors</b><span>Input pull-downs and LED current limiting</span><span>As needed</span></div><div class="bom-row"><span class="mono">D*</span><b>Green / red LEDs</b><span>Correct and incorrect status indicators</span><span>As needed</span></div><div class="bom-row"><span class="mono">CLK</span><b>Clock source + control logic</b><span>Clocked shifting and LOAD/LATCH timing</span><span>01 set</span></div></div>
+        <p class="bom-footnote">*Confirm quantities, clock source, counter/control ICs, and resistor values against the final circuit before procurement.</p>
+      </div>
+    </section>
+
+    <section class="closing section-wrap"><div class="closing-glow"></div><div class="section-kicker">END OF TRANSMISSION</div><h2>Make every bit<br><span class="gradient-text">count.</span></h2><p>LOCK//LINK — a digital lock concept built around serial communication, comparison, and status feedback.</p><a class="button button-primary" href="#home">Back to top ↑</a></section>
+  </main>
+  <footer><a class="brand" href="#home"><span class="brand-mark">L<span>/</span>L</span><span>LOCK<span class="brand-dim">//</span>LINK</span></a><span>SPI-STYLE DIGITAL LOCK · ACADEMIC PROJECT</span><a href="#simulator">Run the simulator ↑</a></footer>
+  <script src="script.js"></script>
+</body>
+</html>
